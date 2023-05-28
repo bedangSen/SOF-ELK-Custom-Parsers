@@ -42,10 +42,13 @@ create_new_parser() {
   fi
 
   # Create the directory for the new parser
+  print_verbose "Creating the directory for the new parser ..."
+
   new_parser_directory="$parsers_directory/$parser_name"
   sudo mkdir -vp "$new_parser_directory"
 
   # Copy the template files to the new parser directory
+  print_verbose "Copying the template files to the new parser directory ..."
   sudo cp -v "$templates_directory/configfiles-templates/6xxx-parsing_template.conf.sample" "$new_parser_directory/6xxx-parsing-$parser_name.conf"
   sudo cp -v "$templates_directory/configfiles-templates/9xxx-output-template.conf.sample" "$new_parser_directory/9xxx-output-$parser_name.conf"
   sudo cp -v "$templates_directory/lib/filebeat_inputs/filebeat_template.yml.sample" "$new_parser_directory/$parser_name.yml"
@@ -61,12 +64,14 @@ install_parser() {
   parser_name=$1
 
   # Check if parser name is provided
+  print_verbose "Checking if parser name is provided ..."
   if [ -z "$parser_name" ]; then
     print_error "Parser name not provided."
     return 1
   fi
 
   # Check if parser directory exists
+  print_verbose "Checking if parser directory exists ..."
   parser_directory="$parsers_directory/$parser_name"
   if [ ! -d "$parser_directory" ]; then
     print_error "Parser does not exist."
@@ -74,38 +79,47 @@ install_parser() {
   fi
 
   # Copy <parsername>.yml to filebeat_inputs directory
+  print_verbose "Copying $parser_name.yml to filebeat_inputs directory ..."
   filebeat_inputs_directory="/usr/local/sof-elk/lib/filebeat_inputs"
   sudo cp -v "$parser_directory/$parser_name.yml" "$filebeat_inputs_directory/"
 
   # Extract parser_data_folder from <parsername>.yml
+  print_verbose "Extracting parser_data_folder from $parser_name.yml"
   parser_data_folder=$(sudo awk '/paths:/ {getline; getline; print}' "$filebeat_inputs_directory/$parser_name.yml")
 
   # Create directory for parser in /logstash/
+  print_verbose "Creating directory for parser in /logstash/ ..."
   logstash_directory="/logstash/$parser_name"
   sudo mkdir -vp "$logstash_directory"
 
   # Set permissions and ownership for the parser directory
+  print_verbose "Setting permissions and ownership for the parser directory ..."
   sudo chown root:root "$logstash_directory"
   sudo chmod 1777 "$logstash_directory"
 
   # Copy 6xxx-parsing-<parsername>.conf and 9xxx-output-<parsername>.conf to configfiles directory
+  print_verbose "Copying 6xxx-parsing-$parser_name.conf and 9xxx-output-$parser_name.conf to configfiles directory ..."
   configfiles_directory="/usr/local/sof-elk/configfiles"
   sudo cp -v "$parser_directory/6xxx-parsing-$parser_name.conf" "$configfiles_directory/"
   sudo cp -v "$parser_directory/9xxx-output-$parser_name.conf" "$configfiles_directory/"
 
   # Create symbolic links in /etc/logstash/conf.d for the parser configuration files
+  print_verbose "Creating symbolic links in /etc/logstash/conf.d for the parser configuration files ..."
   logstash_conf_directory="/etc/logstash/conf.d"
   sudo ln -sv "$configfiles_directory/6xxx-parsing-$parser_name.conf" "$logstash_conf_directory/"
   sudo ln -sv "$configfiles_directory/9xxx-output-$parser_name.conf" "$logstash_conf_directory/"
 
   # Set permissions and ownership for the configuration files
+  print_verbose "Setting permissions and ownership for the configuration files ..."
   sudo chown root:root "$configfiles_directory/6xxx-parsing-$parser_name.conf"
   sudo chown root:root "$configfiles_directory/9xxx-output-$parser_name.conf"
   sudo chmod 644 "$configfiles_directory/6xxx-parsing-$parser_name.conf"
   sudo chmod 644 "$configfiles_directory/9xxx-output-$parser_name.conf"
 
   # Restart logstash service
+  print_verbose "Restarting logstash service ..."
   sudo systemctl restart logstash
+  sudo systemctl status logstash
 
   print_success "\nParser '$parser_name' installed successfully."
 }
