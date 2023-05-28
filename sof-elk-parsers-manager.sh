@@ -101,8 +101,8 @@ install_parser() {
   print_verbose "Copying 6xxx-parsing-$parser_name.conf and 9xxx-output-$parser_name.conf to configfiles directory ..."
   configfiles_directory="/usr/local/sof-elk/configfiles"
   
-  processing_parser=$(find $parser_directory -iname "*-parsing-$parser_name.conf | xargs -I {} basename {}")
-  output_parser=$(find $parser_directory -iname "*-output-$parser_name.conf | xargs -I {} basename {}")
+  processing_parser=$(find $parser_directory -iname "*-parsing-$parser_name.conf" | xargs -I {} basename {})
+  output_parser=$(find $parser_directory -iname "*-output-$parser_name.conf" | xargs -I {} basename {})
   
   sudo cp -v "$parser_directory/$processing_parser" "$configfiles_directory/"
   sudo cp -v "$parser_directory/$output_parser" "$configfiles_directory/"
