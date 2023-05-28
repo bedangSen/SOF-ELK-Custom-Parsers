@@ -13,17 +13,17 @@ RESET='\033[0m'
 # Function to print colored output with prefixes
 print_error() {
   local message=$1
-  echo -e "[${RED}!${RESET}] ${message}"
+  echo -e "${RED}[!] ${message}${RESET}"
 }
 
 print_success() {
   local message=$1
-  echo -e "[${GREEN}+${RESET}] ${message}"
+  echo -e "${GREEN}[+] ${message}${RESET}"
 }
 
 print_verbose() {
   local message=$1
-  echo -e "[${WHITE}-${RESET}] ${message}"
+  echo -e "${WHITE}[-] ${message}${RESET}"
 }
 
 # Function to list available parsers
@@ -100,28 +100,40 @@ install_parser() {
   # Copy 6xxx-parsing-<parsername>.conf and 9xxx-output-<parsername>.conf to configfiles directory
   print_verbose "Copying 6xxx-parsing-$parser_name.conf and 9xxx-output-$parser_name.conf to configfiles directory ..."
   configfiles_directory="/usr/local/sof-elk/configfiles"
-  sudo cp -v "$parser_directory/6xxx-parsing-$parser_name.conf" "$configfiles_directory/"
-  sudo cp -v "$parser_directory/9xxx-output-$parser_name.conf" "$configfiles_directory/"
+  
+  processing_parser=$(find $parser_directory -iname "*-parsing-$parser_name.conf | xargs -I {} basename {}")
+  output_parser=$(find $parser_directory -iname "*-output-$parser_name.conf | xargs -I {} basename {}")
+  
+  sudo cp -v "$parser_directory/$processing_parser" "$configfiles_directory/"
+  sudo cp -v "$parser_directory/$output_parser" "$configfiles_directory/"
 
   # Create symbolic links in /etc/logstash/conf.d for the parser configuration files
   print_verbose "Creating symbolic links in /etc/logstash/conf.d for the parser configuration files ..."
   logstash_conf_directory="/etc/logstash/conf.d"
-  sudo ln -sv "$configfiles_directory/6xxx-parsing-$parser_name.conf" "$logstash_conf_directory/"
-  sudo ln -sv "$configfiles_directory/9xxx-output-$parser_name.conf" "$logstash_conf_directory/"
+  sudo ln -sv "$configfiles_directory/$processing_parser" "$logstash_conf_directory/"
+  sudo ln -sv "$configfiles_directory/$output_parser" "$logstash_conf_directory/"
+
+  # Copy index-<parser_name> to elasticsearch index template directory
+  print_verbose "Copying index-$parser_name.json to elasticsearch index template directory ..."
+  index_template_directory="/usr/local/sof-elk/lib/elasticsearch_templates/index_templates"
+  sudo cp -v "$parser_directory/index-$parser_name.json" "$index_template_directory/"
+
 
   # Set permissions and ownership for the configuration files
   print_verbose "Setting permissions and ownership for the configuration files ..."
-  sudo chown root:root "$configfiles_directory/6xxx-parsing-$parser_name.conf"
-  sudo chown root:root "$configfiles_directory/9xxx-output-$parser_name.conf"
-  sudo chmod 644 "$configfiles_directory/6xxx-parsing-$parser_name.conf"
-  sudo chmod 644 "$configfiles_directory/9xxx-output-$parser_name.conf"
+  sudo chown root:root "$configfiles_directory/$processing_parser"
+  sudo chown root:root "$configfiles_directory/$output_parser"
+  sudo chown root:root "$index_template_directory/index-$parser_name.json"
+  sudo chmod 644 "$configfiles_directory/$processing_parser"
+  sudo chmod 644 "$configfiles_directory/$output_parser"
+  sudo chmod 644 "$index_template_directory/index-$parser_name.json"
 
   # Restart logstash service
   print_verbose "Restarting logstash service ..."
   sudo systemctl restart logstash
   sudo systemctl status logstash
 
-  print_success "\nParser '$parser_name' installed successfully."
+  print_success "Parser '$parser_name' installed successfully."
 }
 
 # Main script execution
