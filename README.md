@@ -12,7 +12,7 @@ SOF-ELK-Custom-Parsers is a collection of bash scripts designed to simplify the 
 
 ## Prerequisites
 
-1. SOF-ELK: Ensure you have a functional instance of SOF-ELK set up and running.
+1. SOF-ELK: Ensure you have a functional instance of SOF-ELK set up and running. If you don't have SOF-ELK installed yet, you can download it from [here](https://github.com/philhagen/sof-elk/blob/main/VM_README.md).
 1. Bash: The scripts are designed to be executed using a Bash shell.
 
 ## Installation
@@ -20,7 +20,7 @@ SOF-ELK-Custom-Parsers is a collection of bash scripts designed to simplify the 
 1. Clone or download the SOF-ELK-Custom-Parsers repository to your SOF-ELK server.
 
    ```bash
-   git clone https://github.com/your-username/SOF-ELK-Custom-Parsers.git
+   git clone https://github.com/bedangSen/SOF-ELK-Custom-Parsers.git
    ```
 
 2. Change to the directory of the downloaded repository.
@@ -64,5 +64,3 @@ This project is licensed under the [MIT License](LICENSE).
 
 - Please note that SOF-ELK-Custom-Parsers is provided as-is, without any warranty or guarantee. Use it at your own risk.
 - Always review and validate the parsers before deploying them in a production environment.
-
-Feel free to customize the README according to your specific needs, adding more sections or information as required.
