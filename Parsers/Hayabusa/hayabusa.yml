@@ -1,0 +1,17 @@
+# Author: Bedang Sen
+# Version: 0.0.1
+
+# This file creates a filebeat prospector for source data from the Hayabusa output.
+
+- type: log
+  paths:
+    - /logstash/hayabusa/*/*/*/*/*_hayabusa.csv
+    - /logstash/hayabusa/*/*/*/*_hayabusa.csv
+    - /logstash/hayabusa/*/*/*_hayabusa.csv
+    - /logstash/hayabusa/*/*_hayabusa.csv
+    - /logstash/hayabusa/*_hayabusa.csv
+  exclude_files: [ 'readme.txt', '\.gz$', '\.bz2$', '\.zip$' ]
+  close_inactive: 5m
+  fields_under_root: true
+  fields:
+    type: hayabusa
