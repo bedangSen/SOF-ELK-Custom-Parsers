@@ -85,17 +85,17 @@ install_parser() {
 
   # Extract parser_data_folder from <parsername>.yml
   print_verbose "Extracting parser_data_folder from $parser_name.yml"
-  parser_data_folder=$(sudo awk '/paths:/ {getline; getline; print}' "$filebeat_inputs_directory/$parser_name.yml")
+  parser_data_folder=$(sudo grep -o '/logstash/.*/*' $filebeat_inputs_directory/$parser_name.yml | cut -d* -f 1 | sort -u )
+  print_verbose "Parsed Folder = $parser_data_folder"
 
   # Create directory for parser in /logstash/
   print_verbose "Creating directory for parser in /logstash/ ..."
-  logstash_directory="/logstash/$parser_name"
-  sudo mkdir -vp "$logstash_directory"
+  sudo mkdir -vp "$parser_data_folder"
 
   # Set permissions and ownership for the parser directory
   print_verbose "Setting permissions and ownership for the parser directory ..."
-  sudo chown root:root "$logstash_directory"
-  sudo chmod 1777 "$logstash_directory"
+  sudo chown root:root "$parser_data_folder"
+  sudo chmod 1777 "$parser_data_folder"
 
   # Copy 6xxx-parsing-<parsername>.conf and 9xxx-output-<parsername>.conf to configfiles directory
   print_verbose "Copying 6xxx-parsing-$parser_name.conf and 9xxx-output-$parser_name.conf to configfiles directory ..."
