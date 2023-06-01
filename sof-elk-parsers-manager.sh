@@ -97,6 +97,33 @@ install_parser() {
   sudo chown root:root "$parser_data_folder"
   sudo chmod 1777 "$parser_data_folder"
 
+  ## Checking if filebeat live reload is enabled.
+  # YAML file path
+  yaml_file="/usr/local/sof-elk/lib/configfiles/filebeat.yml"
+
+  # Start and end patterns for the section
+  start_pattern="filebeat.config.inputs:"
+  end_pattern="filebeat.config.modules:"
+
+  # Check if the reload.enabled setting exists within the section
+  reload_enabled_exists=$(awk "/$start_pattern/,/$end_pattern/" "$yaml_file" | awk '/reload.enabled:/ {found=1; exit} END{print found}')
+
+  if [[ $reload_enabled_exists -eq 0 ]]; then
+    # reload.enabled setting does not exist, add it with the value true
+    sed -i "/$start_pattern/a \  reload.enabled: true" "$yaml_file"
+    print_verbose "Added reload.enabled setting with the value true"
+  else
+    # reload.enabled setting exists, check if the value is true
+    reload_enabled_value=$(awk "/$start_pattern/,/$end_pattern/" "$yaml_file" | awk '/reload.enabled:/ {print $2}')
+    if [[ $reload_enabled_value != "true" ]]; then
+      # reload.enabled value is not true, change it to true
+      sed -i "s/\($start_pattern.*\n\)\(.*reload.enabled: \).*/\1\2true/" "$yaml_file"
+      print_verbose "Changed reload.enabled value to true"
+    else
+      print_verbose "reload.enabled setting is already true"
+    fi
+  fi
+
   # Copy 6xxx-parsing-<parsername>.conf and 9xxx-output-<parsername>.conf to configfiles directory
   print_verbose "Copying 6xxx-parsing-$parser_name.conf and 9xxx-output-$parser_name.conf to configfiles directory ..."
   configfiles_directory="/usr/local/sof-elk/configfiles"
