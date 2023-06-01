@@ -132,6 +132,11 @@ install_parser() {
   print_verbose "Restarting logstash service ..."
   sudo systemctl restart logstash
   sudo systemctl status logstash
+  
+  # Restart Filebeat service
+  print_verbose "Restarting filebeat service ..."
+  sudo systemctl restart filebeat
+  sudo systemctl status filebeat
 
   print_success "Parser '$parser_name' installed successfully."
 }
