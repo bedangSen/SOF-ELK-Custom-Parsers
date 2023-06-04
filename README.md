@@ -29,6 +29,12 @@ SOF-ELK-Custom-Parsers is a collection of bash scripts designed to simplify the 
    cd SOF-ELK-Custom-Parsers
    ```
 
+3. Update the permissions of the script to make it a executable.
+
+   ```bash
+   chmod +x ./sof-elk-parser-manager.sh
+   ```
+
 3. Run the desired parser installation script to set up the parsers you require.
 
    ```bash
