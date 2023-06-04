@@ -1,6 +1,6 @@
 {
   "index_patterns": [
-    "hayabusa-*"
+    "hayabusa-csv-*"
   ],
   "composed_of": [
     "settings-common",
