@@ -23,13 +23,19 @@ print_success() {
 
 print_verbose() {
   local message=$1
-  echo -e "${WHITE}[-] ${message}${RESET}"
+  echo -e "${WHITE}[*] ${message}${RESET}"
+}
+
+print_verbose_list() {
+  local message=$1
+  echo -e "    [-] ${message}"
 }
 
 # Function to list available parsers
 list_parsers() {
   print_verbose "Available parsers:"
-  ls -1 "$parsers_directory"
+  # for parser in `ls -1 "$parsers_directory"`; do echo -e "    - $parser"; done
+  for parser in `ls -1 "$parsers_directory"`; do print_verbose_list "$parser"; done
 }
 
 # Function to create a new parser
@@ -178,7 +184,7 @@ elif [ "$1" == "install" ]; then
 else
   print_error "Invalid command. Usage: sof-elk-parser-manager\.sh <command> [parser_name]"
   print_verbose "Commands:"
-  print_verbose "  list      : List available parsers"
-  print_verbose "  create    : Create a new parser"
-  print_verbose "  install   : Install a specific parser into SOF-ELK"
+  print_verbose_list "list      : List available parsers"
+  print_verbose_list "create    : Create a new parser"
+  print_verbose_list "install   : Install a specific parser into SOF-ELK"
 fi
