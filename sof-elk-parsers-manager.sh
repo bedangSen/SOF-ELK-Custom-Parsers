@@ -130,6 +130,21 @@ install_parser() {
   #   fi
   # fi
 
+  # Add the custom parser to the pre-processor. TO BE TESTED.
+  # Your new block to be inserted
+  new_block="    else if [type] == \"$parser_name\" {
+      mutate { add_field => { \"[@metadata][index_base]\" => \"$parser_name-ids\" } }
+    }"
+
+  # The path to the configuration file
+  config_file="/usr/local/sof-elk/configfiles/1000-preprocess-all.conf"
+
+  # Insert the new block at the end of the file
+  sed -i -e '$d' "$config_file"   # Remove the last line (closing brace of the previous "filter" block)
+  echo "$new_block" >> "$config_file"   # Append the new block
+  echo '}' >> "$config_file"   # Add back the closing brace of the "filter" block
+
+
   # Copy 6xxx-parsing-<parsername>.conf and 9xxx-output-<parsername>.conf to configfiles directory
   print_verbose "Copying 6xxx-parsing-$parser_name.conf and 9xxx-output-$parser_name.conf to configfiles directory ..."
   configfiles_directory="/usr/local/sof-elk/configfiles"
