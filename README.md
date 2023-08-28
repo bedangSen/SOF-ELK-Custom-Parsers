@@ -32,13 +32,13 @@ SOF-ELK-Custom-Parsers is a collection of bash scripts designed to simplify the 
 3. Update the permissions of the script to make it a executable.
 
    ```bash
-   chmod +x ./sof-elk-parser-manager.sh
+   chmod +x ./sof-elk-parsers-manager.sh
    ```
 
 3. Run the desired parser installation script to set up the parsers you require.
 
    ```bash
-   ./sof-elk-parser-manager.sh
+   ./sof-elk-parsers-manager.sh
    ```
 
 4. Follow the prompts and instructions provided by the installation script to complete the parser installation.
@@ -51,14 +51,14 @@ SOF-ELK-Custom-Parsers is a collection of bash scripts designed to simplify the 
 
 To list the available parsers, run the following command:
 ```
-./sof-elk-parser-manager.sh list
+./sof-elk-parsers-manager.sh list
 ```
 
 ### Create a New Parser
 
 To create a new parser, run the following command:
 ```
-./sof-elk-parser-manager.sh create <parser-name>
+./sof-elk-parsers-manager.sh create <parser-name>
 ```
 
 Replace `<parser-name>` with the desired name for your new parser.
@@ -67,7 +67,7 @@ Replace `<parser-name>` with the desired name for your new parser.
 
 To install a specific parser into SOF-ELK, run the following command:
 ```
-./sof-elk-parser-manager.sh install <parser-name>
+./sof-elk-parsers-manager.sh install <parser-name>
 ```
 
 Replace `<parser-name>` with the name of the parser you want to install.
