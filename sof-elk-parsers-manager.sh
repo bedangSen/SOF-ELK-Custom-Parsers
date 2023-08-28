@@ -103,50 +103,24 @@ install_parser() {
   sudo chown root:root "$parser_data_folder"
   sudo chmod 1777 "$parser_data_folder"
 
-  # ## Checking if filebeat live reload is enabled.
-  # # YAML file path
-  # yaml_file="/usr/local/sof-elk/lib/configfiles/filebeat.yml"
+  # ===========================================================================================================
+  # # Add the custom parser to the pre-processor. TO BE TESTED.
+  # # Your new block to be inserted
+  # new_block="    else if [type] == \"$parser_name\" {
+  #     mutate { add_field => { \"[@metadata][index_base]\" => \"$parsser_name-ids\" } }
+  #   }"
 
-  # # Start and end patterns for the section
-  # start_pattern="filebeat.config.inputs:"
-  # end_pattern="filebeat.config.modules:"
+  # # The path to the configuration file
+  # config_file="/usr/local/sof-elk/configfiles/1000-preprocess-all.conf"
 
-  # # Check if the reload.enabled setting exists within the section
-  # reload_enabled_exists=$(awk "/$start_pattern/,/$end_pattern/" "$yaml_file" | awk '/reload.enabled:/ {found=1; exit} END{print found}')
-
-  # if [[ $reload_enabled_exists -eq 0 ]]; then
-  #   # reload.enabled setting does not exist, add it with the value true
-  #   sed -i "/$start_pattern/a \  reload.enabled: true" "$yaml_file"
-  #   print_verbose "Added reload.enabled setting with the value true"
-  # else
-  #   # reload.enabled setting exists, check if the value is true
-  #   reload_enabled_value=$(awk "/$start_pattern/,/$end_pattern/" "$yaml_file" | awk '/reload.enabled:/ {print $2}')
-  #   if [[ $reload_enabled_value != "true" ]]; then
-  #     # reload.enabled value is not true, change it to true
-  #     sed -i "s/\($start_pattern.*\n\)\(.*reload.enabled: \).*/\1\2true/" "$yaml_file"
-  #     print_verbose "Changed reload.enabled value to true"
-  #   else
-  #     print_verbose "reload.enabled setting is already true"
-  #   fi
-  # fi
-
-  # Add the custom parser to the pre-processor. TO BE TESTED.
-  # Your new block to be inserted
-  new_block="    else if [type] == \"$parser_name\" {
-      mutate { add_field => { \"[@metadata][index_base]\" => \"$parser_name-ids\" } }
-    }"
-
-  # The path to the configuration file
-  config_file="/usr/local/sof-elk/configfiles/1000-preprocess-all.conf"
-
-  # Insert the new block at the end of the file
-  sed -i -e '$d' "$config_file"   # Remove the last line (closing brace of the previous "filter" block)
-  echo "$new_block" >> "$config_file"   # Append the new block
-  echo '}' >> "$config_file"   # Add back the closing brace of the "filter" block
-
+  # # Insert the new block at the end of the file
+  # sudo sed -i -e '$d' $config_file   # Remove the last line (closing brace of the previous "filter" block)
+  # sudo echo "$new_block" >> $config_file  # Append the new block
+  # sudo echo '}' >> $config_file   # Add back the closing brace of the "filter" block
+  # ===========================================================================================================
 
   # Copy 6xxx-parsing-<parsername>.conf and 9xxx-output-<parsername>.conf to configfiles directory
-  print_verbose "Copying 6xxx-parsing-$parser_name.conf and 9xxx-output-$parser_name.conf to configfiles directory ..."
+  print_verbose "Copying 6xxx-parsing-$parser_name.conf to configfiles directory ..."
   configfiles_directory="/usr/local/sof-elk/configfiles"
   
   processing_parser=$(find $parser_directory -iname "*-parsing-$parser_name.conf" | xargs -I {} basename {})
@@ -185,6 +159,9 @@ install_parser() {
   print_verbose "Restarting filebeat service ..."
   sudo systemctl restart filebeat
   sudo systemctl status filebeat
+
+  # Reload custom elasticsearch templates
+  load_all_dashboards.sh
 
   print_success "Parser '$parser_name' installed successfully."
 }
