@@ -151,6 +151,22 @@ install_parser() {
     return 1
   fi
 
+  # Check if parser configurations already exist
+  print_verbose "Checking if parser configurations already exist ..."
+  if [ -f "/usr/local/sof-elk/lib/filebeat_inputs/$parser_name.yml" ] || [ -d "$parser_data_folder" ] || [ -f "/usr/local/sof-elk/configfiles/$processing_parser" ]; then
+    print_verbose "Parser configurations already exist."
+    
+    # Ask the user if they want to clean up and reinstall
+    read -p "Do you want to clean up and reinstall the parser? (y/n): " cleanup_choice
+    if [ "$cleanup_choice" == "y" ]; then
+      print_verbose "Cleaning up existing parser configurations..."
+      uninstall_parser "$parser_name"
+    else
+      print_verbose "Skipping parser installation."
+      return
+    fi
+  fi
+
   # Copy <parsername>.yml to filebeat_inputs directory
   print_verbose "Copying $parser_name.yml to filebeat_inputs directory ..."
   filebeat_inputs_directory="/usr/local/sof-elk/lib/filebeat_inputs"
