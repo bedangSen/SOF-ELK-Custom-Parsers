@@ -65,6 +65,73 @@ create_new_parser() {
   print_verbose "Parser directory: $new_parser_directory"
 }
 
+# Function to uninstall a specific parser from SOF-ELK
+uninstall_parser() {
+  parser_name=$1
+
+  # Check if parser name is provided
+  print_verbose "Checking if parser name is provided ..."
+  if [ -z "$parser_name" ]; then
+    print_error "Parser name not provided."
+    return 1
+  fi
+
+  # Check if parser directory exists
+  print_verbose "Checking if parser directory exists ..."
+  parser_directory="$parsers_directory/$parser_name"
+  if [ ! -d "$parser_directory" ]; then
+    print_error "Parser does not exist."
+    return 1
+  fi
+
+  # Remove the parser directory from /logstash/
+  print_verbose "Removing parser directory from /logstash/ ..."
+  filebeat_inputs_directory="/usr/local/sof-elk/lib/filebeat_inputs"
+  parser_data_folder=$(sudo grep -o '/logstash/.*/*' $filebeat_inputs_directory/$parser_name.yml | cut -d* -f 1 | sort -u )
+  sudo rm -rvf "$parser_data_folder"
+
+  # Remove <parsername>.yml from filebeat_inputs directory
+  print_verbose "Removing $parser_name.yml from filebeat_inputs directory ..."
+  sudo rm -vf "$filebeat_inputs_directory/$parser_name.yml"
+
+  # Remove the parser configuration files from configfiles directory
+  print_verbose "Removing parser configuration files from configfiles directory ..."
+  configfiles_directory="/usr/local/sof-elk/configfiles"
+  
+  processing_parser=$(find $parser_directory -iname "*-parsing-$parser_name.conf" | xargs -I {} basename {})
+  # output_parser=$(find $parser_directory -iname "*-output-$parser_name.conf" | xargs -I {} basename {})  ---> REMOVING AFTER LAST UPDATE
+  
+  sudo rm -vf "$configfiles_directory/$processing_parser"
+  # sudo rm -vf "$configfiles_directory/$output_parser"  ---> REMOVING AFTER LAST UPDATE
+
+  # Remove the symbolic links from /etc/logstash/conf.d
+  print_verbose "Removing symbolic links from /etc/logstash/conf.d ..."
+  logstash_conf_directory="/etc/logstash/conf.d"
+  sudo rm -vf "$logstash_conf_directory/$processing_parser"
+  # sudo rm -vf "$logstash_conf_directory/$output_parser"  ---> REMOVING AFTER LAST UPDATE
+
+  # Remove index-<parser_name>.json from elasticsearch index template directory
+  print_verbose "Removing index-$parser_name.json from elasticsearch index template directory ..."
+  index_template_directory="/usr/local/sof-elk/lib/elasticsearch_templates/index_templates"
+  sudo rm -vf "$index_template_directory/index-$parser_name.json"
+
+  # Restart logstash service
+  print_verbose "Restarting logstash service ..."
+  sudo systemctl restart logstash
+  sudo systemctl status logstash
+  
+  # Restart Filebeat service
+  print_verbose "Restarting filebeat service ..."
+  sudo systemctl restart filebeat
+  sudo systemctl status filebeat
+
+  # Reload custom elasticsearch templates
+  load_all_dashboards.sh
+
+  print_success "Parser '$parser_name' uninstalled successfully."
+}
+
+
 # Function to install a specific parser into SOF-ELK
 install_parser() {
   parser_name=$1
@@ -173,10 +240,14 @@ elif [ "$1" == "create" ]; then
   create_new_parser "$2"
 elif [ "$1" == "install" ]; then
   install_parser "$2"
+elif [ "$1" == "uninstall" ]; then
+  uninstall_parser "$2"
 else
   print_error "Invalid command. Usage: sof-elk-parser-manager\.sh <command> [parser_name]"
   print_verbose "Commands:"
   print_verbose_list "list      : List available parsers"
   print_verbose_list "create    : Create a new parser"
   print_verbose_list "install   : Install a specific parser into SOF-ELK"
+  print_verbose_list "uninstall : Uninstall a specific parser from SOF-ELK"
 fi
+
