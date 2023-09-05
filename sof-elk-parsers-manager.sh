@@ -266,6 +266,7 @@ check_status() {
     print_success "Logstash is running."
   else
     print_error "Logstash is not running."
+    return 1
   fi
 
   # Check Filebeat status
@@ -274,6 +275,7 @@ check_status() {
     print_success "Filebeat is running."
   else
     print_error "Filebeat is not running."
+    return 1
   fi
 
   # Check Logstash logs for the parser name
