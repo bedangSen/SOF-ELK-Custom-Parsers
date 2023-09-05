@@ -249,6 +249,42 @@ install_parser() {
   print_success "Parser '$parser_name' installed successfully."
 }
 
+# Function to check the status and logs of Logstash and Filebeat processes for a specific parser
+check_status() {
+  parser_name=$1
+
+  # Check if parser name is provided
+  print_verbose "Checking if parser name is provided ..."
+  if [ -z "$parser_name" ]; then
+    print_error "Parser name not provided."
+    return 1
+  fi
+
+  # Check Logstash status
+  logstash_status=$(sudo systemctl is-active logstash)
+  if [ "$logstash_status" == "active" ]; then
+    print_success "Logstash is running."
+  else
+    print_error "Logstash is not running."
+  fi
+
+  # Check Filebeat status
+  filebeat_status=$(sudo systemctl is-active filebeat)
+  if [ "$filebeat_status" == "active" ]; then
+    print_success "Filebeat is running."
+  else
+    print_error "Filebeat is not running."
+  fi
+
+  # Check Logstash logs for the parser name
+  print_verbose "\n\nChecking Logstash logs for activity related to '$parser_name'..."
+  sudo journalctl -u logstash | grep "$parser_name"
+
+  # Check Filebeat logs for the parser name
+  print_verbose "\n\nChecking Filebeat logs for activity related to '$parser_name'..."
+  sudo journalctl -u filebeat | grep "$parser_name"
+}
+
 # Main script execution
 if [ "$1" == "list" ]; then
   list_parsers
@@ -258,11 +294,14 @@ elif [ "$1" == "install" ]; then
   install_parser "$2"
 elif [ "$1" == "uninstall" ]; then
   uninstall_parser "$2"
+elif [ "$1" == "status" ]; then
+  check_status "$2"
 else
   print_error "Invalid command. Usage: sof-elk-parser-manager\.sh <command> [parser_name]"
   print_verbose "Commands:"
   print_verbose_list "list      : List available parsers"
   print_verbose_list "create    : Create a new parser"
+  print_verbose_list "status    : Check status of Logstash and Filebeat processes for a specific parser"
   print_verbose_list "install   : Install a specific parser into SOF-ELK"
   print_verbose_list "uninstall : Uninstall a specific parser from SOF-ELK"
 fi
