@@ -284,7 +284,7 @@ check_status() {
 
   # Check Filebeat logs for the parser name
   print_verbose "\n\nChecking Filebeat logs for activity related to '$parser_name'..."
-  sudo journalctl -u filebeat | grep "$parser_name"
+  sudo journalctl -u filebeat | grep "$parser_name" | grep -v 'Configured paths:' | grep '\{.*\}' -o | jq
 }
 
 # Main script execution
