@@ -218,20 +218,20 @@ install_parser() {
   sudo ln -sv "$configfiles_directory/$processing_parser" "$logstash_conf_directory/"
   # sudo ln -sv "$configfiles_directory/$output_parser" "$logstash_conf_directory/"  ---> REMOVING AFTER LAST UPDATE
 
-  # Copy index-<parser_name> to elasticsearch index template directory
-  print_verbose "Copying index-$parser_name.json to elasticsearch index template directory ..."
-  index_template_directory="/usr/local/sof-elk/lib/elasticsearch_templates/index_templates"
-  sudo cp -v "$parser_directory/index-$parser_name.json" "$index_template_directory/"
+  # Copy index-<parser_name> to elasticsearch index template directory   ---> REMOVING AFTER LAST UPDATE
+  # print_verbose "Copying index-$parser_name.json to elasticsearch index template directory ..."
+  # index_template_directory="/usr/local/sof-elk/lib/elasticsearch_templates/index_templates"
+  # sudo cp -v "$parser_directory/index-$parser_name.json" "$index_template_directory/"
 
 
   # Set permissions and ownership for the configuration files
   print_verbose "Setting permissions and ownership for the configuration files ..."
   sudo chown root:root "$configfiles_directory/$processing_parser"
   # sudo chown root:root "$configfiles_directory/$output_parser" ---> REMOVING AFTER LAST UPDATE
-  sudo chown root:root "$index_template_directory/index-$parser_name.json"
+  # sudo chown root:root "$index_template_directory/index-$parser_name.json"   ---> REMOVING AFTER LAST UPDATE
   sudo chmod 644 "$configfiles_directory/$processing_parser"
   # sudo chmod 644 "$configfiles_directory/$output_parser"  ---> REMOVING AFTER LAST UPDATE
-  sudo chmod 644 "$index_template_directory/index-$parser_name.json"
+  # sudo chmod 644 "$index_template_directory/index-$parser_name.json"   ---> REMOVING AFTER LAST UPDATE
 
   # Restart logstash service
   print_verbose "Restarting logstash service ..."
