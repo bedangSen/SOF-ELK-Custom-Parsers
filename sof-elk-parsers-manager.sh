@@ -187,19 +187,19 @@ install_parser() {
   sudo chmod 1777 "$parser_data_folder"
 
   # ===========================================================================================================
-  # # Add the custom parser to the pre-processor. TO BE TESTED.
-  # # Your new block to be inserted
-  # new_block="    else if [type] == \"$parser_name\" {
-  #     mutate { add_field => { \"[@metadata][index_base]\" => \"$parsser_name-ids\" } }
-  #   }"
+  # Add the custom parser to the pre-processor. TO BE TESTED.
+  # Your new block to be inserted
+  new_block="    else if [type] == \"$parser_name\" {
+      mutate { add_field => { \"[@metadata][index_base]\" => \"$parser_name\" } }
+  }"
 
-  # # The path to the configuration file
-  # config_file="/usr/local/sof-elk/configfiles/1000-preprocess-all.conf"
+  # The path to the configuration file
+  config_file="/usr/local/sof-elk/configfiles/1000-preprocess-all.conf"
 
-  # # Insert the new block at the end of the file
-  # sudo sed -i -e '$d' $config_file   # Remove the last line (closing brace of the previous "filter" block)
-  # sudo echo "$new_block" >> $config_file  # Append the new block
-  # sudo echo '}' >> $config_file   # Add back the closing brace of the "filter" block
+  # Insert the new block at the end of the file
+  sudo bash -c  "sed -i -e '$d' $config_file"   # Remove the last line (closing brace of the previous "filter" block)
+  sudo bash -c  "echo "$new_block" >> $config_file"  # Append the new block
+  sudo bash -c  "echo '}' >> $config_file"   # Add back the closing brace of the "filter" block
   # ===========================================================================================================
 
   # Copy 6xxx-parsing-<parsername>.conf and 9xxx-output-<parsername>.conf to configfiles directory
