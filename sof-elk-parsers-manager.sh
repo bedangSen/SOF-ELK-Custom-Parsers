@@ -84,6 +84,10 @@ uninstall_parser() {
     return 1
   fi
 
+  # Remove parser from 'usr/local/sof-elk/configfiles/1000-preprocess-all.conf'
+  print_verbose "Removing '$parser_name' configuration from '1000-preprocess-all.conf' ..."
+  sudo sed -i '/else if \[type\] == "$parser_name" {/,+2d' "/usr/local/sof-elk/configfiles/1000-preprocess-all.conf"
+
   # Remove the parser directory from /logstash/
   print_verbose "Removing parser directory from /logstash/ ..."
   filebeat_inputs_directory="/usr/local/sof-elk/lib/filebeat_inputs"
@@ -233,6 +237,7 @@ install_parser() {
   sudo chmod 644 "$configfiles_directory/$processing_parser"
   # sudo chmod 644 "$configfiles_directory/$output_parser"  ---> REMOVING AFTER LAST UPDATE
   sudo chmod 644 "$index_template_directory/index-$parser_name.json"
+
   # Restart logstash service
   print_verbose "Restarting logstash service ..."
   sudo systemctl restart logstash
@@ -307,4 +312,3 @@ else
   print_verbose_list "install   : Install a specific parser into SOF-ELK"
   print_verbose_list "uninstall : Uninstall a specific parser from SOF-ELK"
 fi
-
