@@ -60,6 +60,8 @@ create_new_parser() {
   sudo cp -v "$templates_directory/lib/filebeat_inputs/filebeat_template.yml.sample" "$new_parser_directory/$parser_name.yml"
   sudo cp -v "$templates_directory/lib/elasticsearch_templates/index_templates/000_index-example.json.sample" "$new_parser_directory/index-$parser_name.json"
 
+
+
   print_success "New parser created successfully."
   print_verbose "Parser name: $parser_name"
   print_verbose "Parser directory: $new_parser_directory"
@@ -178,7 +180,7 @@ install_parser() {
 
   # Extract parser_data_folder from <parsername>.yml
   print_verbose "Extracting parser_data_folder from $parser_name.yml"
-  parser_data_folder=$(sudo grep -o '/logstash/.*/*' $filebeat_inputs_directory/$parser_name.yml | cut -d* -f 1 | sort -u )
+  parser_data_folder=$(sudo grep -o '/logstash/.*/\*' $filebeat_inputs_directory/$parser_name.yml | cut -d* -f 1 | sort -u )
   print_verbose "Parsed Folder = $parser_data_folder"
 
   # Create directory for parser in /logstash/
